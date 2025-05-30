@@ -4,7 +4,7 @@ import argparse
 
 def arg_parser():
     parser = argparse.ArgumentParser(description="CheXpert Practice")
-    parser.add_argument("--gpu", type=int, default=0, help="GPU index to use")
+    parser.add_argument("--gpu", type=int, default=None, help="GPU index to use")
     parser.add_argument("--img_size", type=int, default=224, help="Input image resolution")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training")
     parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
@@ -13,6 +13,7 @@ def arg_parser():
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate for the optimizer")
     parser.add_argument("--optim" , type=str, default="adamw", choices=["adamw", "adam", "sgd"], help="Optimizer to use")
     parser.add_argument("--dataset_path", type=str, required=True, help="Path to the dataset directory")
+    parser.add_argument("--workers", type=int, default=2, help="Number of workers for data loading")
     return parser.parse_args()
 
 
