@@ -34,7 +34,7 @@ class CheXpertDataset(Dataset):
                         row_label.append(-1)
                     else:
                         row_label.append(0)
-                self.labels.append(row_label)
+                self.labels.append(torch.tensor(row_label))
 
 
     @staticmethod

@@ -10,8 +10,7 @@ from data_class import CheXpertDataset
 
 
 class CheXpertSwinV2Model(nn.Module):
-    def __init__(self, img_size, batch_size, epochs, pretrained_weights, save_model_dir, logs_dir, gpu, lr, optim,
-                 dataset_path, workers=2):
+    def __init__(self, img_size, pretrained_weights, gpu, lr, optim):
         super().__init__()
 
         # Handle image size
@@ -62,36 +61,12 @@ class CheXpertSwinV2Model(nn.Module):
         else:
             raise ValueError("Optimizer must be 'adamw', 'adam', or 'sgd'")
 
-        # Hyperparameters
-        self.batch_size = batch_size
-        self.epochs = epochs
-        self.save_model_dir = save_model_dir
-        self.logs_dir = logs_dir
-        self.dataset_path = dataset_path
-        self.workers = workers
-        self.train_loader = None
-        self.val_loader = None
-
     def get_default_transform(self, img_size):
         return transforms.Compose([
             transforms.Resize(img_size),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
-
-    def load_dataset(self):
-        self.train_loader = DataLoader(
-            CheXpertDataset(os.path.join(self.dataset_path, "train.csv"), transform=self.transform),
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.workers
-        )
-        self.val_loader = DataLoader(
-            CheXpertDataset(os.path.join(self.dataset_path, "valid.csv"), transform=self.transform),
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.workers
-        )
 
     def forward(self, x):
         return self.base_model(x)
