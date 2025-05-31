@@ -1,4 +1,7 @@
 *.zip
 dataset
 dataset/*
-
+data_loader_test.py
+model_test.py
+*__pychache__*
+*.pyc

@@ -3,6 +3,7 @@ import numpy as np
 import PIL
 import PIL.Image as Image
 import csv
+import torch
 
 
 class CheXpertDataset(Dataset):
@@ -29,10 +30,10 @@ class CheXpertDataset(Dataset):
                 for i in range(5, len(row)):
                     if row[i] == "1":
                         row_label.append(1)
-                    elif row[i] == "0":
-                        row_label.append(0)
-                    else:
+                    elif row[i] == "-1":
                         row_label.append(-1)
+                    else:
+                        row_label.append(0)
                 self.labels.append(row_label)
 
 
@@ -53,9 +54,9 @@ class CheXpertDataset(Dataset):
         image_path = self.image_paths[idx]
         label = self.labels[idx]
 
-        image = PIL.Image.open(image_path).convert('L')
+        image = PIL.Image.open(image_path).convert('RGB').resize((224, 224))  # Resize to 224x224
 
-        image = self._augment_image(image)
+        image = torch.tensor(self._augment_image(image).transpose(2, 0, 1).astype('float32'), dtype=torch.float32)
 
         return image, label
 
