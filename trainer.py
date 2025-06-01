@@ -88,9 +88,9 @@ def validate_model(model, dataloader):
         for batch_features, batch_labels in dataloader:
             batch_features = batch_features.to(model.device)
             batch_labels = batch_labels.to(model.device)
-
+            print(batch_labels)
             outputs = model(batch_features)
-            log_auc = metric(outputs, batch_labels.float())
+            log_auc = metric(outputs, batch_labels)
             loss = criterion(outputs, batch_labels.float())
             total_loss += loss.item()
 

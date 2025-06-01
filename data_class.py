@@ -27,10 +27,11 @@ class CheXpertDataset(Dataset):
             for row in reader:
                 self.image_paths.append(row[0])
                 row_label = []
+                # print(row)
                 for i in range(5, len(row)):
-                    if row[i] == "1":
+                    if row[i] == "1.0":
                         row_label.append(1)
-                    elif row[i] == "-1":
+                    elif row[i] == "-1.0":
                         row_label.append(-1)
                     else:
                         row_label.append(0)
