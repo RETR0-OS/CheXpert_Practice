@@ -43,7 +43,8 @@ class CheXpertSwinV2Model(nn.Module):
             nn.Dropout(0.1),
             nn.Linear(int(in_features / 3), int(in_features / 3)),
             nn.ReLU(inplace=True),
-            nn.Linear(int(in_features / 3), 14)
+            nn.Linear(int(in_features / 3), 14),
+            nn.Sigmoid() # Sigmoid for multi-label classification
         )
 
         # Device setup

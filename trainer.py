@@ -11,9 +11,13 @@ def train_model(data_path, batch_size, epochs, pretrained_weights, save_model_di
 
     best_auc = 0.0
 
+    # Create directories if they don't exist
+    os.makedirs(save_model_dir, exist_ok=True)
+    os.makedirs(logs_dir, exist_ok=True)
+
     # Initialize dataset
-    train_dataset = CheXpertDataset(data_path+"/train_xs.csv")
-    val_dataset = CheXpertDataset(data_path+"/valid_small.csv")
+    train_dataset = CheXpertDataset(data_path+"/train.csv")
+    val_dataset = CheXpertDataset(data_path+"/valid.csv")
 
 
     # Create DataLoader
@@ -91,18 +95,44 @@ def validate_model(model, dataloader):
     model.eval()
     total_loss = 0.0
     criterion = BCEWithLogitsLoss()
-    metric = MultilabelLogAUC(num_labels=14, average="macro", thresholds=None)
+    metric = MultilabelLogAUC(num_labels=14, average="macro", thresholds=None).to(model.device)
+    metric.reset()
+
+    all_outputs = []
+    all_labels = []
+
     with torch.no_grad():
         for batch_features, batch_labels in dataloader:
             batch_features = batch_features.to(model.device)
             batch_labels = batch_labels.to(model.device)
-            # print(batch_labels)
             outputs = model(batch_features)
-            log_auc = metric(outputs, batch_labels)
             loss = criterion(outputs, batch_labels.float())
             total_loss += loss.item()
+            all_outputs.append(outputs)
+            all_labels.append(batch_labels)
+
+        all_outputs = torch.cat(all_outputs)
+        all_labels = torch.cat(all_labels)
+        log_auc = metric(all_outputs, all_labels)
 
     avg_loss = total_loss / len(dataloader)
     print(f"Validation Loss: {avg_loss:.4f} \t Log AUC: {log_auc.item():.4f}")
     return avg_loss, log_auc
 
+## Test train function
+# if __name__ == "__main__":
+#     # Example usage
+#     best_model_state = train_model(
+#         data_path="./dataset",
+#         batch_size=32,
+#         epochs=1,
+#         pretrained_weights="ImageNet_1k",
+#         save_model_dir="./Outputs/models",
+#         logs_dir="./Outputs/logs",
+#         gpu=0,
+#         lr=1e-3,
+#         optim="adamw",
+#         workers=2,
+#         val_epochs=1
+#     )
+#     print("Training complete. Best model state saved.")
