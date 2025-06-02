@@ -5,15 +5,15 @@ from data_class import CheXpertDataset
 from torch.utils.data import DataLoader
 from torch.optim import AdamW, Adam, SGD
 from torchmetrics.classification import MultilabelLogAUC
-
+import os
 
 def train_model(data_path, batch_size, epochs, pretrained_weights, save_model_dir, logs_dir, gpu, lr, optim, workers, val_epochs=5):
 
     best_auc = 0.0
 
     # Initialize dataset
-    train_dataset = CheXpertDataset(data_path+"/train.csv")
-    val_dataset = CheXpertDataset(data_path+"/valid.csv")
+    train_dataset = CheXpertDataset(data_path+"/train_xs.csv")
+    val_dataset = CheXpertDataset(data_path+"/valid_small.csv")
 
 
     # Create DataLoader
@@ -40,6 +40,11 @@ def train_model(data_path, batch_size, epochs, pretrained_weights, save_model_di
 
     criterion = BCEWithLogitsLoss()  # Binary Cross-Entropy Loss with logits
 
+    f = open(f"{logs_dir}/log.txt", "w")  # Clear old log contents, if exists
+    f.close()
+    f = open(f"{logs_dir}/final_log.txt", "w")  # clear logs, if exists.
+    f.close()
+
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs}")
         model.train()
@@ -63,6 +68,10 @@ def train_model(data_path, batch_size, epochs, pretrained_weights, save_model_di
             ## Run validation
             print("Initiating model validation...")
             val_loss, log_auc = validate_model(model, val_dataloader)
+
+            os.makedirs(logs_dir, exist_ok=True)
+            os.makedirs(save_model_dir, exist_ok=True)
+
             with open(f"{logs_dir}/log.txt", "a") as log_file:
                 log_file.write(f"Epoch [{epoch + 1}/{epochs}], Loss: {loss.item():.4f}, Val Loss: {val_loss:.4f}, Log AUC: {log_auc:.4f}\n")
 
@@ -70,7 +79,6 @@ def train_model(data_path, batch_size, epochs, pretrained_weights, save_model_di
                 best_auc = log_auc
                 print(f"New best Log AUC: {best_auc:.4f}. Saving model...")
                 torch.save(model.state_dict(), f"{save_model_dir}/best_model.pth")
-
     with open(f"{logs_dir}/final_log.txt", "a") as log_file:
         log_file.write(f"Training completed. Best Log AUC: {best_auc:.4f}\n")
 
@@ -97,3 +105,4 @@ def validate_model(model, dataloader):
     avg_loss = total_loss / len(dataloader)
     print(f"Validation Loss: {avg_loss:.4f} \t Log AUC: {log_auc.item():.4f}")
     return avg_loss, log_auc
+
