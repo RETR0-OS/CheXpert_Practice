@@ -88,12 +88,12 @@ def validate_model(model, dataloader):
         for batch_features, batch_labels in dataloader:
             batch_features = batch_features.to(model.device)
             batch_labels = batch_labels.to(model.device)
-            print(batch_labels)
+            # print(batch_labels)
             outputs = model(batch_features)
             log_auc = metric(outputs, batch_labels)
             loss = criterion(outputs, batch_labels.float())
             total_loss += loss.item()
 
     avg_loss = total_loss / len(dataloader)
-    print(f"Validation Loss: {avg_loss:.4f} \t Log AUC: {log_auc:.4f}")
+    print(f"Validation Loss: {avg_loss:.4f} \t Log AUC: {log_auc.item():.4f}")
     return avg_loss, log_auc
