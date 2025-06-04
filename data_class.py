@@ -32,7 +32,7 @@ class CheXpertDataset(Dataset):
                     if row[i] == "1.0":
                         row_label.append(1)
                     elif row[i] == "-1.0":
-                        row_label.append(-1)
+                        row_label.append(1) # Aggressive approach: treat -1 as presence of disease to ensure follow-up
                     else:
                         row_label.append(0)
                 self.labels.append(torch.tensor(row_label))
